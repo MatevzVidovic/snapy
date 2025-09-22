@@ -13,22 +13,6 @@
   Final Result: '[TEST_DATATEST_DATATEST_DATA]'
   '''
 # ---
-# name: test_context_manager_approach
-  '''
-  ├─ Function: outer(arg3='test', arg4='123')
-    ├─ Function: inner(arg1='test', arg2='123')
-    │  └─ Returns: 'test123'
-  │  └─ Returns: 'test123test123'
-  ├─ Function: complex_function(data='sample', multiplier=2)
-    ├─ Function: process_data(data='sample')
-    │  └─ Returns: 'SAMPLE'
-    ├─ Function: multiply_result(data='SAMPLE', multiplier=2)
-    │  └─ Returns: 'SAMPLESAMPLE'
-    ├─ Function: finalize_result(data='SAMPLESAMPLE')
-    │  └─ Returns: '[SAMPLESAMPLE]'
-  │  └─ Returns: '[SAMPLESAMPLE]'
-  '''
-# ---
 # name: test_multiple_calls_trace
   '''
   === Trace 1 ===
@@ -59,15 +43,6 @@
   └─ Returns: '[DATADATA]'
   
   Final Result: '[DATADATA]'
-  '''
-# ---
-# name: test_quick_trace_utility
-  '''
-  ├─ Function: outer(arg3='quick', arg4='trace')
-    ├─ Function: inner(arg1='quick', arg2='trace')
-    │  └─ Returns: 'quicktrace'
-  │  └─ Returns: 'quicktracequicktrace'
-  ├─ Function: stop_tracing(self=<pysnap.tracer.FunctionTracer object at 0x70c936253b90>)
   '''
 # ---
 # name: test_traced_outer_function
