@@ -108,4 +108,4 @@ pytest = ">=7.0.0,<9.0.0"
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.11"
-content-hash = "d0fa983d5ddacf832e743c4fcd1b52faf285b2214ce852cbdced9657ce76784d"
+content-hash = "85f15a883dab245d04d08f5ba559f932de577b5c7eb741bf93cb99b6ddc7e608"
