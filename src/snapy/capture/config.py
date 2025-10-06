@@ -33,6 +33,10 @@ class CaptureConfig:
     production_mode: bool = field(default_factory=lambda: os.getenv("SNAP_CAPTURE_PRODUCTION_MODE", "false").lower() == "true")
     minimal_capture: bool = field(default_factory=lambda: os.getenv("SNAP_CAPTURE_MINIMAL", "false").lower() == "true")
 
+    # Serialization configuration
+    serialization_backend: str = field(default_factory=lambda: os.getenv("SNAP_CAPTURE_SERIALIZATION_BACKEND", "dill"))
+    fallback_to_dill: bool = field(default_factory=lambda: os.getenv("SNAP_CAPTURE_FALLBACK_TO_DILL", "true").lower() == "true")
+
     @staticmethod
     def _parse_env_list(env_var: str, default: Optional[List[str]] = None) -> List[str]:
         """Parse comma-separated environment variable into a list."""
@@ -170,6 +174,27 @@ class CaptureConfig:
 
         return True
 
+    def get_serialization_backend(self) -> str:
+        """
+        Get the configured serialization backend.
+
+        Returns:
+            Serialization backend: 'dill', 'pickle', or 'auto'
+        """
+        backend = self.serialization_backend.lower()
+        if backend in ['dill', 'pickle', 'auto']:
+            return backend
+        return 'dill'  # Default to dill for safety
+
+    def should_fallback_to_dill(self) -> bool:
+        """
+        Determine if should fallback to dill when pickle fails.
+
+        Returns:
+            True if should fallback to dill, False otherwise
+        """
+        return self.fallback_to_dill
+
     def to_dict(self) -> Dict[str, Any]:
         """
         Convert configuration to dictionary.
@@ -186,7 +211,9 @@ class CaptureConfig:
             "ignore_functions": self.ignore_functions,
             "ignore_args": self.ignore_args,
             "production_mode": self.production_mode,
-            "minimal_capture": self.minimal_capture
+            "minimal_capture": self.minimal_capture,
+            "serialization_backend": self.serialization_backend,
+            "fallback_to_dill": self.fallback_to_dill
         }
 
 

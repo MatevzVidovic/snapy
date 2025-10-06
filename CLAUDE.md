@@ -118,6 +118,10 @@ from snapy import capture_args, FunctionTracer, TracedSnapshot
 - `SNAP_CAPTURE_DEFAULT_RETENTION=2` - Number of captures to keep
 - `SNAP_CAPTURE_IGNORE_ARGS=password,token,secret,key` - Filtered arguments
 
+**Serialization Settings** (NEW in v2.0):
+- `SNAP_CAPTURE_SERIALIZATION_BACKEND=dill` - Serialization backend (dill/pickle/auto)
+- `SNAP_CAPTURE_FALLBACK_TO_DILL=true` - Auto-fallback to dill if pickle fails
+
 **Production Settings**:
 - `SNAP_CAPTURE_PRODUCTION_MODE=true` - Minimal overhead mode
 - `SNAP_CAPTURE_MINIMAL=true` - Essential data only
@@ -166,6 +170,7 @@ snapy/
 
 - **syrupy** - Snapshot testing framework (>= 4.9.1)
 - **pytest** - Testing framework (>= 8.4.2)
+- **dill** - Enhanced serialization library (>= 0.3.6) - *NEW in v2.0*
 - Built for Python >= 3.11
 
 ### Security Considerations

@@ -12,6 +12,7 @@ from dataclasses import dataclass
 from collections import OrderedDict
 import glob
 import os
+from .config import get_global_config
 
 
 @dataclass
@@ -58,6 +59,109 @@ class CaptureStorage:
         self.base_path = Path(base_path)
         self.base_path.mkdir(parents=True, exist_ok=True)
         self._lock = threading.RLock()
+        self._setup_serializer()
+
+    def _setup_serializer(self):
+        """Setup the serialization backend based on configuration."""
+        config = get_global_config()
+        backend = config.get_serialization_backend()
+
+        if backend == "dill":
+            dill_module = self._get_dill()
+            if dill_module:
+                self.serializer = dill_module
+                self.serializer_name = "dill"
+            else:
+                print("Warning: dill not available, falling back to pickle")
+                self.serializer = pickle
+                self.serializer_name = "pickle"
+        elif backend == "pickle":
+            self.serializer = pickle
+            self.serializer_name = "pickle"
+        else:  # auto
+            # Try dill first, fallback to pickle
+            dill_module = self._get_dill()
+            if dill_module:
+                self.serializer = dill_module
+                self.serializer_name = "dill"
+            else:
+                self.serializer = pickle
+                self.serializer_name = "pickle"
+
+    def _get_dill(self):
+        """Get dill module if available."""
+        try:
+            import dill
+            return dill
+        except ImportError:
+            return None
+
+    def _safe_serialize(self, obj: Any, filepath: Path) -> None:
+        """
+        Safely serialize object with fallback mechanism.
+
+        Args:
+            obj: Object to serialize
+            filepath: Path to save the serialized object
+        """
+        config = get_global_config()
+
+        try:
+            # Try with primary serializer
+            with open(filepath, 'wb') as f:
+                self.serializer.dump(obj, f)
+            return
+        except Exception as primary_error:
+            # If fallback is enabled and we're using pickle, try dill
+            if (config.should_fallback_to_dill() and
+                self.serializer_name == "pickle"):
+
+                dill_module = self._get_dill()
+                if dill_module:
+                    try:
+                        with open(filepath, 'wb') as f:
+                            dill_module.dump(obj, f)
+                        print(f"Note: Used dill serialization fallback for {filepath.name}")
+                        return
+                    except Exception:
+                        # If dill also fails, raise original pickle error
+                        pass
+
+            # If no fallback worked, raise the original error
+            raise primary_error
+
+    def _safe_deserialize(self, filepath: Path) -> Any:
+        """
+        Safely deserialize object with fallback mechanism.
+
+        Args:
+            filepath: Path to the serialized object
+
+        Returns:
+            Deserialized object
+        """
+        config = get_global_config()
+
+        try:
+            # Try with primary serializer
+            with open(filepath, 'rb') as f:
+                return self.serializer.load(f)
+        except Exception as primary_error:
+            # If fallback is enabled and we're using pickle, try dill
+            if (config.should_fallback_to_dill() and
+                self.serializer_name == "pickle"):
+
+                dill_module = self._get_dill()
+                if dill_module:
+                    try:
+                        with open(filepath, 'rb') as f:
+                            return dill_module.load(f)
+                    except Exception:
+                        # If dill also fails, raise original pickle error
+                        pass
+
+            # If no fallback worked, raise the original error
+            raise primary_error
 
     def save_capture(
         self,
@@ -126,10 +230,12 @@ class CaptureStorage:
             CapturedCall object or None if file doesn't exist or is corrupted
         """
         try:
-            with open(file_path, 'rb') as f:
-                return pickle.load(f)
-        except (FileNotFoundError, pickle.PickleError, EOFError) as e:
+            return self._safe_deserialize(file_path)
+        except (FileNotFoundError, EOFError) as e:
             print(f"Warning: Failed to load capture from {file_path}: {e}")
+            return None
+        except Exception as e:
+            print(f"Warning: Failed to deserialize capture from {file_path}: {e}")
             return None
 
     def load_latest_capture(self, function_name: str) -> Optional[CapturedCall]:
@@ -294,17 +400,24 @@ class CaptureStorage:
     def _save_to_file(self, capture: CapturedCall, file_path: Path) -> None:
         """Save capture to file atomically."""
         # Use temporary file for atomic write
+        # Use safe serialization with fallback mechanism
         with tempfile.NamedTemporaryFile(
             mode='wb',
             dir=file_path.parent,
             delete=False
         ) as temp_file:
-            pickle.dump(capture, temp_file)
-            temp_file.flush()
-            os.fsync(temp_file.fileno())
+            # Close the temp file so we can use our safe serialization method
+            temp_file_path = Path(temp_file.name)
 
-        # Atomic rename
-        os.rename(temp_file.name, file_path)
+        try:
+            self._safe_serialize(capture, temp_file_path)
+            # Atomic rename
+            os.rename(temp_file_path, file_path)
+        except Exception:
+            # Clean up temp file if serialization failed
+            if temp_file_path.exists():
+                temp_file_path.unlink()
+            raise
 
     def _cleanup_old_captures(self, function_name: str, retention: int) -> int:
         """Clean up old captures based on retention policy."""

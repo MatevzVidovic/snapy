@@ -63,4 +63,28 @@ PYTHONPATH=../src python3 simple_test_fixed.py
 
 ## Key takeaway
 
-Snapy works excellently with almost all data structures. The one limitation (cross-module custom classes) can be easily solved by optionally using dill instead of pickle for serialization.
+Snapy works excellently with almost all data structures. The one limitation (cross-module custom classes) has been solved by integrating dill as the default serialization backend.
+
+## Dill Integration (NEW!)
+
+Snapy now uses **dill** by default instead of pickle, which provides:
+- ✅ Better serialization of custom classes across modules
+- ✅ Support for lambda functions and nested classes
+- ✅ Handles objects from `__main__` module
+- ✅ Better error messages and debugging
+- ✅ Backward compatibility with existing pickle files
+
+### Configuration Options
+
+Set via environment variables or `.env` file:
+```bash
+# Choose serialization backend
+SNAP_CAPTURE_SERIALIZATION_BACKEND=dill    # recommended (default)
+SNAP_CAPTURE_SERIALIZATION_BACKEND=pickle  # legacy compatibility
+SNAP_CAPTURE_SERIALIZATION_BACKEND=auto    # auto-detect best available
+
+# Enable fallback from pickle to dill if needed
+SNAP_CAPTURE_FALLBACK_TO_DILL=true  # default
+```
+
+With dill integration, the ListNode serialization issue is completely resolved!

@@ -8,8 +8,12 @@ authors = [
 requires-python = ">=3.11"
 dependencies = [
     "syrupy (>=4.9.1,<5.0.0)",
-    "pytest (>=8.4.2,<9.0.0)"
+    "pytest (>=8.4.2,<9.0.0)",
+    "dill (>=0.3.6,<1.0.0)"
 ]
+
+[project.optional-dependencies]
+enhanced_serialization = ["dill (>=0.3.6,<1.0.0)"]
 
 
 [build-system]
