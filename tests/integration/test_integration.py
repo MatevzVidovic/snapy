@@ -3,11 +3,7 @@ Integration tests for the complete PySnap system.
 Tests all components working together.
 """
 
-from pysnap import (
-    FunctionTracer, TracedSnapshot, trace_snapshot, 
-    trace_calls, quick_trace
-)
-from pysnap.decorators import TraceCollector
+from snapy import FunctionTracer, TracedSnapshot
 
 
 def helper_function(x):
@@ -48,7 +44,7 @@ class TestIntegration:
     
     def test_traced_snapshot_integration(self):
         """Test TracedSnapshot with real functions."""
-        from pysnap.snapshot import create_traced_snapshot
+        from snapy.snapshot import create_traced_snapshot
         snapshot = create_traced_snapshot(filter_modules=["test_integration"])
         
         result = snapshot.capture_trace(main_function, 3, 4)
@@ -118,7 +114,7 @@ class TestIntegration:
     
     def test_multiple_snapshot_captures(self):
         """Test capturing multiple traces in sequence."""
-        from pysnap.snapshot import create_traced_snapshot
+        from snapy.snapshot import create_traced_snapshot
         snapshot = create_traced_snapshot(filter_modules=["test_integration"])
         
         # Capture multiple traces
@@ -227,7 +223,7 @@ class TestIntegration:
                 return process_list(data)
             return data
         
-        from pysnap.snapshot import create_traced_snapshot
+        from snapy.snapshot import create_traced_snapshot
         snapshot = create_traced_snapshot(filter_modules=["test_integration"])
         
         # Test with dictionary

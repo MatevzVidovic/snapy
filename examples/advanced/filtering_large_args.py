@@ -6,7 +6,7 @@ This demonstrates the key benefit: capturing arguments with their names in an or
 dictionary, allowing easy filtering of large arguments while maintaining order.
 """
 
-from snapy_capture import capture_args, load_capture_dict
+from snapy.capture import capture_args, load_capture_dict
 
 
 @capture_args()

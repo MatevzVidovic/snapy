@@ -8,10 +8,10 @@ import asyncio
 from pathlib import Path
 import pytest
 
-from snapy_capture.capture import capture_args, CaptureContext, disable_capture, capture_once, capture_minimal
-from snapy_capture.config import CaptureConfig, set_global_config
-from snapy_capture.storage import CaptureStorage
-from snapy_capture.loader import load_capture
+from snapy.capture.capture import capture_args, CaptureContext, disable_capture, capture_once, capture_minimal
+from snapy.capture.config import CaptureConfig, set_global_config
+from snapy.capture.storage import CaptureStorage
+from snapy.capture.loader import load_capture
 
 
 class TestCaptureDecorator:

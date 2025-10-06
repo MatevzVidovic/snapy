@@ -6,7 +6,7 @@ in your test suite using pytest and syrupy.
 """
 
 import pytest
-from snapy_capture import load_capture, load_all_captures, has_capture, CaptureLoader
+from snapy.capture import load_capture, load_all_captures, has_capture, CaptureLoader
 from .basic_usage import process_user_data, api_request, calculate_metrics
 
 
@@ -148,7 +148,7 @@ class TestCaptureIntegration:
 
     def test_capture_and_replay_workflow(self):
         """Test complete capture and replay workflow."""
-        from snapy_capture import capture_args
+        from snapy.capture import capture_args
 
         @capture_args(path="./test_captures")
         def temp_function(x, y, operation="add"):

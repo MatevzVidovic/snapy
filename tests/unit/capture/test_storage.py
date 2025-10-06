@@ -8,7 +8,7 @@ from pathlib import Path
 from datetime import datetime
 import pytest
 
-from snapy_capture.storage import CaptureStorage, CaptureMetadata, CapturedCall
+from snapy.capture.storage import CaptureStorage, CaptureMetadata, CapturedCall
 
 
 class TestCaptureStorage:

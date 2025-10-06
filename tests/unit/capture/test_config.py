@@ -7,7 +7,7 @@ import tempfile
 from pathlib import Path
 import pytest
 
-from snapy_capture.config import CaptureConfig, get_global_config, set_global_config
+from snapy.capture.config import CaptureConfig, get_global_config, set_global_config
 
 
 class TestCaptureConfig:
@@ -150,7 +150,7 @@ class TestGlobalConfig:
     def setup_method(self):
         """Setup for each test method."""
         # Reset global config
-        from snapy_capture.config import _global_config
+        from snapy.capture.config import _global_config
         snapy_capture.config._global_config = None
 
     def test_get_global_config(self):

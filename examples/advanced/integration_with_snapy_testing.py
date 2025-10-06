@@ -4,9 +4,9 @@ Integration example showing how to use snapy_capture with the existing snapy_tes
 This demonstrates combining argument capture with function tracing for comprehensive testing.
 """
 
-from snapy_capture import capture_args, load_capture
-from snapy_testing import TracedSnapshot
-from snapy_testing.snapshot import create_traced_snapshot
+from snapy.capture import capture_args, load_capture
+from snapy.testing import TracedSnapshot
+from snapy.testing.snapshot import create_traced_snapshot
 
 
 @capture_args()
@@ -145,7 +145,7 @@ def test_integration_capture_and_trace(snapshot):
     result = traced.capture_trace(complex_business_function, *args, **kwargs)
 
     # Assert both the result and the execution trace
-    trace_output = traced.format_trace()
+    trace_output = traced.format_all_traces()
 
     # Create combined snapshot that includes both result and trace
     combined_output = {
@@ -176,7 +176,7 @@ def test_validate_user_data_with_captures(snapshot):
     # Combine result and trace for comprehensive testing
     combined = {
         "result": result,
-        "trace": traced.format_trace()
+        "trace": traced.format_all_traces()
     }
 
     assert combined == snapshot
@@ -238,7 +238,7 @@ def demonstrate_combined_workflow():
 
     # Step 2: Show available captures
     print("\nStep 2: Available captures:")
-    from snapy_capture import CaptureLoader
+    from snapy.capture import CaptureLoader
     loader = CaptureLoader()
 
     for func_name in loader.list_functions():
@@ -261,7 +261,7 @@ def demonstrate_combined_workflow():
 
         print(f"  Execution result: {result}")
         print("\n  Execution trace:")
-        print(traced.format_trace())
+        print(traced.format_all_traces())
 
     print("\n✓ Combined workflow demonstration completed!")
     print("\nThis demonstrates how snapy_capture and snapy_testing work together:")

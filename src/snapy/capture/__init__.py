@@ -9,7 +9,7 @@ from .config import CaptureConfig
 from .storage import CaptureStorage
 from .filters import ArgumentFilter
 from .capture import capture_args
-from .loader import CaptureLoader, load_capture, load_capture_dict
+from .loader import CaptureLoader, load_capture, load_capture_dict, has_capture
 
 __version__ = "0.1.0"
 __all__ = [
@@ -19,5 +19,6 @@ __all__ = [
     "ArgumentFilter",
     "CaptureLoader",
     "load_capture",
-    "load_capture_dict"
+    "load_capture_dict",
+    "has_capture"
 ]

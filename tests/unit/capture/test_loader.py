@@ -6,9 +6,9 @@ import tempfile
 import shutil
 import pytest
 
-from snapy_capture.loader import CaptureLoader, load_capture, load_all_captures, has_capture, CaptureFixture
-from snapy_capture.storage import CaptureStorage
-from snapy_capture.config import CaptureConfig, set_global_config
+from snapy.capture.loader import CaptureLoader, load_capture, load_all_captures, has_capture, CaptureFixture
+from snapy.capture.storage import CaptureStorage
+from snapy.capture.config import CaptureConfig, set_global_config
 
 
 class TestCaptureLoader:
@@ -259,7 +259,7 @@ class TestLoaderIntegration:
 
     def test_end_to_end_capture_and_load(self):
         """Test complete capture and load workflow."""
-        from snapy_capture.capture import capture_args
+        from snapy.capture.capture import capture_args
 
         @capture_args()
         def example_function(x, y, operation="add"):

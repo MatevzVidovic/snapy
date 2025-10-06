@@ -9,9 +9,9 @@ This example demonstrates:
 """
 
 import os
-from snapy_capture import capture_args, CaptureContext, capture_minimal
-from snapy_capture.config import CaptureConfig, set_global_config
-from snapy_capture.performance import (
+from snapy.capture import capture_args, CaptureContext, capture_minimal
+from snapy.capture.config import CaptureConfig, set_global_config
+from snapy.capture.performance import (
     configure_for_production,
     get_performance_monitor,
     print_performance_report,
@@ -234,7 +234,7 @@ def demonstrate_error_recovery():
 
     # Pattern 3: Recovery from storage issues
     print("\n3. Storage issue recovery:")
-    from snapy_capture import CaptureLoader
+    from snapy.capture import CaptureLoader
 
     # Try to load from non-existent path
     loader = CaptureLoader("/completely/invalid/path")

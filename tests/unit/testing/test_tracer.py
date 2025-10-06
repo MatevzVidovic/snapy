@@ -4,7 +4,7 @@ Comprehensive test suite for the PySnap tracer functionality.
 
 import sys
 from typing import List
-from pysnap.tracer import FunctionTracer, CallEvent
+from snapy.testing.tracer import FunctionTracer, CallEvent
 
 
 def simple_function(x, y):

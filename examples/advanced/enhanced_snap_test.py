@@ -3,8 +3,11 @@ Enhanced snapshot test demonstrating full tracing capabilities.
 Compatible with pytest and syrupy for automated testing.
 """
 
-from pysnap import TracedSnapshot #, trace_calls, quick_trace
-from pysnap.snapshot import create_traced_snapshot
+from snapy.testing import TracedSnapshot #, trace_calls, quick_trace
+from snapy.testing.snapshot import create_traced_snapshot
+import sys
+import os
+sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'basic'))
 from enhanced_example import outer, inner, complex_function
 
 

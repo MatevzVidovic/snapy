@@ -5,7 +5,7 @@ This module demonstrates how to use the @capture_args decorator
 to automatically capture function arguments for replay in tests.
 """
 
-from snapy_capture import capture_args
+from snapy.capture import capture_args
 
 
 @capture_args()

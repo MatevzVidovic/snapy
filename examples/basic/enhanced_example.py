@@ -3,7 +3,7 @@ Enhanced example demonstrating the full capabilities of PySnap tracing.
 Shows various ways to trace function arguments, return values, and nested calls.
 """
 
-from snapy_testing import TracedSnapshot
+from snapy.testing import TracedSnapshot
 
 
 def inner(arg1, arg2):
