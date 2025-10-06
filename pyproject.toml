@@ -1,7 +1,7 @@
 [project]
-name = "pysnap"
-version = "0.1.0"
-description = ""
+name = "snapy"
+version = "2.0.0"
+description = "Python Testing Framework with Argument Capture and Function Tracing"
 authors = [
     {name = "Matevž Vidovič",email = "matevz.vidovic@gmail.si"}
 ]
