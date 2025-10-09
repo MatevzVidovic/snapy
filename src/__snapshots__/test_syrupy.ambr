@@ -1,4 +1,17 @@
 # serializer version: 1
+# name: test_do_ops_with_protocol_mock
+  list([
+    tuple(
+      3,
+    ),
+    tuple(
+      'expr(1, 2)',
+    ),
+    tuple(
+      'concat(1, 2)',
+    ),
+  ])
+# ---
 # name: test_greeting
   dict({
     'lang': 'en',
