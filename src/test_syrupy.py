@@ -16,7 +16,7 @@ def test_do_ops_with_protocol_mock(mocker, snapshot):
     ops = mocker.create_autospec(b.BasicOps, instance=True, spec_set=True)
     ops.plus.return_value = 3
     # THIS IS CELARLY PROBLEMATIC.
-    # The 2 lines below are wrong - that is not what is returned.
+    # The 2 lines below are wrong - that is not at is returned.
     # But since it is never used as an input, 
     # we dont even know that that is what is returned.
     ops.expression.return_value = "expr(1, 2)"
