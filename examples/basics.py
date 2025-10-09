@@ -44,6 +44,7 @@ def do_ops_DI(ops: BasicOps, a, b):
     i = ops.plus(a, b)
     j = ops.expression(i, b)
     k = ops.concatenation(i, j)
+    print(k)
     return "start" + k
 
 
@@ -56,6 +57,6 @@ def main():
     print('---')
     print(do_ops(RealOpsTwo(), 5, 3))
 
-
-main()
+if __name__ == "__main__":
+    main()
 
