@@ -1,7 +1,8 @@
 
-
+import examples.basics as b
 
 # tests/test_greeting.py
-def test_greeting(snapshot):
-    payload = {"message": "hello", "lang": "en"}
-    assert payload == snapshot
+def test_do_ops(snapshot):
+
+    returned = b.do_ops(b.RealOpsOne(), 1, 2)
+    assert returned == snapshot
