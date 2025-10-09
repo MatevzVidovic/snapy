@@ -14,8 +14,11 @@
 Plan:
 - capture handler nima vec init. Raje ima povsod base_path kot argument svojih metod
 - prilagoditev da stvari drugje za to v redu delajo
-- v test_syrupy naredit mock metode, ki shranjujejo v path alla:   side_effect_capture + path do trenutne test fukcije + path do funkcije ki se uporablja v testu
-In imamo max allowed float("inf)
+- v test_syrupy naredit mock metode, ki shranjujejo v path alla:   
+poimenovanje shranjevanja je tako:
+module path / test fn name / wrapper_fn name / (če je to snap test) pickle file name / hash
+Tako v snap testih iščemo enake argumente samo za trenutni pickle name, torej veliko manj za preverit
+- In imamo max allowed float("inf)
 - v plus_mock imamo potem fn plus_wrapper ki ima v sebi potem plus().
 In če je plus_wrapper že imel take argumente (vidimo v capture load) potem samo returnamo to.
 Če še ni imel, poženemo plus wrapper (na njim je @capture torej se bo zdaj shranilo).
@@ -23,9 +26,6 @@ In če je plus_wrapper že imel take argumente (vidimo v capture load) potem sam
 Če je ta false ali none, in ne najdemo matching signaturea v loaded captures, damo Exception.
 Ko poganjamo snapshot update, naredimo:
 SIDE_EFFECT_CAPTURE=True pytest --snapshot-update
-- poimenovanje shranjevanja je tako:
-module path / test fn name / wrapper_fn name / (če je to snap test) pickle file name / hash
-Tako v snap testih iščemo enake argumente samo za trenutni pickle name, torej veliko manj za preverit
 
 ZAPIŠI - with snap capture you could be capturing from production/staging env.
 But there, objects might be humongus (like huge ML models).

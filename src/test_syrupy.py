@@ -1,5 +1,10 @@
 
+import os
+from pathlib import Path
 import examples.basics as b
+
+from unittest.mock import Mock
+from pytest_mock import MockerFixture, MockType
 
 
 def test_greeting():
@@ -64,9 +69,10 @@ def test_do_ops_DI_with_protocol_mock(mocker, snapshot):
 
 
 import src.capture.capture as c
+cch = c.CaptureHandler
 # def test_real_ops_one_concatenation(snapshot):
 
-#     table = c.CaptureHandler().load_all(b.RealOpsOne.concatenation)
+#     table = cch().load_all(b.RealOpsOne.concatenation)
 #     print(f"table: {table}")
 
 #     for _, entry in table.items():
@@ -75,7 +81,7 @@ import src.capture.capture as c
 
 def test_real_ops_one_plus(snapshot):
 
-    table = c.CaptureHandler().load_all(b.RealOpsOne.plus)
+    table = cch.load_all(b.RealOpsOne.plus)
     print(f"table: {table}")
 
     for _, entry in table.items():
@@ -88,29 +94,80 @@ def test_real_ops_one_plus(snapshot):
 
 
 
-def test_do_ops_with_protocol_mock_snap(mocker, snapshot):
-    ops = mocker.create_autospec(b.BasicOps, instance=True, spec_set=True)
+def test_do_ops_DI_with_protocol_mock_snap(mocker: MockerFixture, snapshot):
+
+    """
+
+    - v plus_mock imamo potem fn plus_wrapper ki ima v sebi potem plus().
+    
+    In če je plus_wrapper že imel take argumente (vidimo v capture load) potem samo returnamo to.
+
+    Če še ni imel, poženemo plus wrapper (na njim je @capture torej se bo zdaj shranilo).
+
+    - V testu imamo pogledamo za dotenv spremenljivko .
+    Če je ta false ali none, in ne najdemo matching signaturea v loaded captures, damo Exception.
+    """
+
+    table_tests = cch.load_all(b.do_ops)
+    for test_case, captures in table_tests.items():
+        ops = mocker.create_autospec(b.BasicOps, instance=True, spec_set=True)
+
+        def plus_mock(*args, **kwargs):
+            import src.capture.capture as c
+            side_effect_target_path = c.side_effect_target_path(test_do_ops_DI_with_protocol_mock_snap, plus_mock, test_case)
+            returned, was_found = c.side_effect_lookup(args, kwargs, side_effect_target_path)
+            if was_found:
+                return returned
+            
+            @c.capture(max_captures=float("inf"), target_path=side_effect_target_path)
+            def plus_wrapper(*args, **kwargs):
+                import examples.basics as b
+                return b.RealOpsOne.plus(*args, **kwargs)
+            return plus_wrapper(*args, **kwargs)
 
 
-    def plus_mock(a, b, c=8):
-        table = c.CaptureHandler(test_do_ops_with_protocol_mock_snap).load_all(b.RealOpsOne.plus)
-        print(f"table: {table}")
+        def expression_mock(*args, **kwargs):
+            import src.capture.capture as c
+            side_effect_target_path = c.side_effect_target_path(test_do_ops_DI_with_protocol_mock_snap, expression_mock, test_case)
+            returned, was_found = c.side_effect_lookup(args, kwargs, side_effect_target_path)
+            if was_found:
+                return returned
+            
+            @c.capture(max_captures=float("inf"), target_path=side_effect_target_path)
+            def expression_wrapper(*args, **kwargs):
+                import examples.basics as b
+                return b.RealOpsOne.expression(*args, **kwargs)
+            return expression_wrapper(*args, **kwargs)
+        
 
-        for _, entry in table.items():
-            if entry["args"][0] == a and entry["args"][1] == b and entry["kwargs"].get("c", 1) == c:
-                return entry["result"]
-        raise ValueError("No matching capture found")
+        def concatenation_mock(*args, **kwargs):
+            import src.capture.capture as c
+            side_effect_target_path = c.side_effect_target_path(test_do_ops_DI_with_protocol_mock_snap, concatenation_mock, test_case)
+            returned, was_found = c.side_effect_lookup(args, kwargs, side_effect_target_path)
+            if was_found:
+                return returned
+            
+            @c.capture(max_captures=float("inf"), target_path=side_effect_target_path)
+            def concatenation_wrapper(*args, **kwargs):
+                import examples.basics as b
+                return b.RealOpsOne.concatenation(*args, **kwargs)
+            return concatenation_wrapper(*args, **kwargs)
+
+
     
 
-    ops.plus.side_effect = lambda a, b, c=8: 
-    ops.expression.side_effect = lambda 
-    ops.concatenation.side_effect = 
+        ops.plus.side_effect = plus_mock
+        ops.expression.side_effect = expression_mock
+        ops.concatenation.side_effect = concatenation_mock
 
-    print_spy = mocker.patch("examples.basics.print")
+        print_spy = mocker.patch("examples.basics.print")
 
-    b.do_ops(ops, 1, 2)
+        returned = b.do_ops_DI(*captures["args"], **captures["kwargs"])
 
-    ops.plus.assert_called_once_with(1, 2, c=8)
-    ops.expression.assert_called_once_with(1, 2)
-    ops.concatenation.assert_called_once_with(1, 2)
-    assert [call.args for call in print_spy.call_args_list] == snapshot
+        c.assert_side_effect_calls(test_do_ops_DI_with_protocol_mock_snap, concatenation_mock, test_case, ops.plus)
+        c.assert_side_effect_calls(test_do_ops_DI_with_protocol_mock_snap, expression_mock, test_case, ops.expression)
+        c.assert_side_effect_calls(test_do_ops_DI_with_protocol_mock_snap, concatenation_mock, test_case, ops.concatenation)
+
+        assert [returned] + [call.args for call in print_spy.call_args_list] == snapshot
+        
+        
