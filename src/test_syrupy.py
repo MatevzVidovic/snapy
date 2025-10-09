@@ -26,7 +26,7 @@ def test_do_ops_with_protocol_mock(mocker, snapshot):
 
     b.do_ops(ops, 1, 2)
 
-    ops.plus.assert_called_once_with(1, 2)
+    ops.plus.assert_called_once_with(1, 2, c=8)
     ops.expression.assert_called_once_with(1, 2)
     ops.concatenation.assert_called_once_with(1, 2)
     assert [call.args for call in print_spy.call_args_list] == snapshot

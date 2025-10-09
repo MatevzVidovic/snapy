@@ -39,7 +39,7 @@ class RealOpsTwo:
         return self.concatenation(a, self.plus(a, b))
 
 def do_ops(ops: BasicOps, a, b):
-      print(ops.plus(a, b))
+      print(ops.plus(a, b, c=8))
       print(ops.expression(a, b))
       print(ops.concatenation(a, b))
 
@@ -52,13 +52,13 @@ def do_ops_DI(ops: BasicOps, a, b):
 
 
 def main():
-    print(do_ops_DI(RealOpsOne(), 1, 2))
-    print('---')
-    print(do_ops_DI(RealOpsOne(), 5, 3))
-    print('---')
     print(do_ops(RealOpsOne(), 1, 2))
     print('---')
     print(do_ops(RealOpsTwo(), 5, 3))
+    print('---')
+    print(do_ops_DI(RealOpsOne(), 1, 2))
+    print('---')
+    print(do_ops_DI(RealOpsOne(), 5, 3))
 
 if __name__ == "__main__":
     main()
