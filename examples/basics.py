@@ -2,6 +2,7 @@
 
 
 from typing import Protocol, runtime_checkable
+import src.capture.capture as c
 
 @runtime_checkable
 class BasicOps(Protocol):
@@ -14,9 +15,11 @@ class BasicOps(Protocol):
     
 class RealOpsOne:
 
+    @c.capture()
     def plus(self, a, b):
         return a + b
 
+    @c.capture()
     def concatenation(self, a, b):
         return str(a) + str(b)
 
@@ -59,4 +62,11 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+    import os
+    import dotenv
+    dotenv.load_dotenv()
+    print("------------------------------")
+    print(os.getenv("SNAPY_CAPTURE"))
 

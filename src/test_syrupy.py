@@ -1,6 +1,10 @@
 
 import examples.basics as b
 
+
+def test_greeting():
+    b.main()
+
 # tests/test_greeting.py
 def test_do_ops(snapshot):
 
@@ -57,3 +61,4 @@ def test_do_ops_DI_with_protocol_mock(mocker, snapshot):
     # assert [call.args for call in print_spy.call_args_list] == snapshot
 
     assert returned == snapshot
+
