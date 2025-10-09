@@ -103,3 +103,4 @@ def capture(max_captures: int = 2,
             return result
         return wrapper
     return decorator
+

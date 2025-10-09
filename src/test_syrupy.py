@@ -15,7 +15,7 @@ def test_do_ops(snapshot):
 def test_do_ops_with_protocol_mock(mocker, snapshot):
     ops = mocker.create_autospec(b.BasicOps, instance=True, spec_set=True)
     ops.plus.return_value = 3
-    # THIS IS CELARLY PROBLEMATIC.
+    # THIS IS CLARLY PROBLEMATIC.
     # The 2 lines below are wrong - that is not at is returned.
     # But since it is never used as an input, 
     # we dont even know that that is what is returned.
@@ -83,3 +83,34 @@ def test_real_ops_one_plus(snapshot):
         result = b.RealOpsOne().plus(*entry["args"][1:], **entry["kwargs"])
         # print(f"result: {result}")
         assert result == snapshot
+
+
+
+
+
+def test_do_ops_with_protocol_mock_snap(mocker, snapshot):
+    ops = mocker.create_autospec(b.BasicOps, instance=True, spec_set=True)
+
+
+    def plus_mock(a, b, c=8):
+        table = c.CaptureHandler(test_do_ops_with_protocol_mock_snap).load_all(b.RealOpsOne.plus)
+        print(f"table: {table}")
+
+        for _, entry in table.items():
+            if entry["args"][0] == a and entry["args"][1] == b and entry["kwargs"].get("c", 1) == c:
+                return entry["result"]
+        raise ValueError("No matching capture found")
+    
+
+    ops.plus.side_effect = lambda a, b, c=8: 
+    ops.expression.side_effect = lambda 
+    ops.concatenation.side_effect = 
+
+    print_spy = mocker.patch("examples.basics.print")
+
+    b.do_ops(ops, 1, 2)
+
+    ops.plus.assert_called_once_with(1, 2, c=8)
+    ops.expression.assert_called_once_with(1, 2)
+    ops.concatenation.assert_called_once_with(1, 2)
+    assert [call.args for call in print_spy.call_args_list] == snapshot
