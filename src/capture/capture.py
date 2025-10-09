@@ -115,7 +115,7 @@ def capture(max_captures: float = 2,
             if os.getenv(env_var) == "1":
                 try:
                     nonlocal target_path
-                    target_path = CaptureHandler.get_target_path(func, "capture") if target_path is None else target_path
+                    target_path = CaptureHandler.get_target_path(func, "captures") if target_path is None else target_path
                     num_of_files = len(list(target_path.glob("*.pkl"))) if target_path.exists() else 0
                     if num_of_files < max_captures:
                         CaptureHandler.record(args, kwargs, result, target_path)

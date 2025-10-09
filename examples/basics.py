@@ -1,8 +1,10 @@
 
 
 
+from pathlib import Path
 from typing import Protocol, runtime_checkable
 import src.capture.capture as c
+cch = c.CaptureHandler
 
 @runtime_checkable
 class BasicOps(Protocol):
@@ -43,6 +45,7 @@ def do_ops(ops: BasicOps, a, b):
       print(ops.expression(a, b))
       print(ops.concatenation(a, b))
 
+@c.capture(target_path=(Path(__file__).resolve().parent / "basics" / "do_ops_DI"))
 def do_ops_DI(ops: BasicOps, a, b):
     i = ops.plus(a, b)
     j = ops.expression(i, b)
@@ -61,7 +64,6 @@ def main():
     print(do_ops_DI(RealOpsOne(), 5, 3))
 
 if __name__ == "__main__":
-    main()
 
 
     import os
@@ -70,3 +72,4 @@ if __name__ == "__main__":
     print("------------------------------")
     print(os.getenv("SNAPY_CAPTURE"))
 
+    main()

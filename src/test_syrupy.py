@@ -108,7 +108,9 @@ def test_do_ops_DI_with_protocol_mock_snap(mocker: MockerFixture, snapshot):
     Če je ta false ali none, in ne najdemo matching signaturea v loaded captures, damo Exception.
     """
 
-    table_tests = cch.load_all(b.do_ops)
+    table_tests = cch.load_all(b.do_ops_DI)
+    if len(table_tests) == 0:
+        raise ValueError("No captures found for do_ops - run test_do_ops with SNAPY_CAPTURE=1 first")
     for test_case, captures in table_tests.items():
         ops = mocker.create_autospec(b.BasicOps, instance=True, spec_set=True)
 
