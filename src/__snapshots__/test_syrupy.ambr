@@ -2,6 +2,9 @@
 # name: test_do_ops
   '336.2'
 # ---
+# name: test_do_ops_DI_with_protocol_mock
+  <MagicMock name='mock.concatenation().__radd__()' id='140079936447248'>
+# ---
 # name: test_do_ops_with_protocol_mock
   list([
   ])
