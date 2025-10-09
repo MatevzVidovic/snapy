@@ -1,11 +1,26 @@
 # serializer version: 1
 # name: test_do_ops
-  '336.2'
+  None
 # ---
 # name: test_do_ops_DI_with_protocol_mock
-  'start336.2'
+  'start336.125'
 # ---
 # name: test_do_ops_with_protocol_mock
   list([
+    tuple(
+      3,
+    ),
+    tuple(
+      'expr(1, 2)',
+    ),
+    tuple(
+      'concat(1, 2)',
+    ),
   ])
+# ---
+# name: test_real_ops_one_plus
+  6
+# ---
+# name: test_real_ops_one_plus.1
+  11
 # ---

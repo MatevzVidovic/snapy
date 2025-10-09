@@ -43,7 +43,7 @@ import dill
 
 
 class CaptureHandler:
-    def __init__(self, base_dir: str | Path) -> None:
+    def __init__(self, base_dir: str | Path = "captures") -> None:
         self.base_path = Path(base_dir)
 
     def get_target_dir(self, func: Callable[..., Any]) -> Path:
@@ -85,7 +85,7 @@ P = ParamSpec("P")
 R = TypeVar("R")
 
 def capture(max_captures: int = 2,
-            recorder: CaptureHandler = CaptureHandler("captures"),
+            recorder: CaptureHandler = CaptureHandler(),
             env_var: str = "SNAPY_CAPTURE") -> Callable[[Callable[P, R]], Callable[P, R]]:
     def decorator(func: Callable[P, R]) -> Callable[P, R]:
         @wraps(func)

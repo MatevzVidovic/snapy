@@ -6,7 +6,7 @@ import src.capture.capture as c
 
 @runtime_checkable
 class BasicOps(Protocol):
-    def plus(self, a, b): ...
+    def plus(self, a, b, c=..., d=...): ...
     def plusSpecific(self, a: int, b: float): ...
     def concatenation(self, a, b) -> str: ...
     def expression(self, a, b): ...
@@ -16,8 +16,8 @@ class BasicOps(Protocol):
 class RealOpsOne:
 
     @c.capture()
-    def plus(self, a, b):
-        return a + b
+    def plus(self, a, b, c=1, d=2):
+        return a + b + c + d
 
     @c.capture()
     def concatenation(self, a, b):
@@ -29,7 +29,7 @@ class RealOpsOne:
 
 class RealOpsTwo:
 
-    def plus(self, a, b):
+    def plus(self, a, b, c=1, d=2):
         return a
 
     def concatenation(self, a, b):

@@ -62,3 +62,24 @@ def test_do_ops_DI_with_protocol_mock(mocker, snapshot):
 
     assert returned == snapshot
 
+
+import src.capture.capture as c
+# def test_real_ops_one_concatenation(snapshot):
+
+#     table = c.CaptureHandler().load_all(b.RealOpsOne.concatenation)
+#     print(f"table: {table}")
+
+#     for _, entry in table.items():
+#         result = b.RealOpsOne().concatenation(*entry["args"], **entry["kwargs"])
+#         assert result == snapshot
+
+def test_real_ops_one_plus(snapshot):
+
+    table = c.CaptureHandler().load_all(b.RealOpsOne.plus)
+    print(f"table: {table}")
+
+    for _, entry in table.items():
+        # print(b.RealOpsOne().plus(5, 8))
+        result = b.RealOpsOne().plus(*entry["args"][1:], **entry["kwargs"])
+        # print(f"result: {result}")
+        assert result == snapshot
