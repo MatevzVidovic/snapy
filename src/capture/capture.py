@@ -76,13 +76,6 @@ class CaptureHandler:
         path_id = Path(*module_name.split(".")) / f"{func.__qualname__}" 
         return path_id
 
-    
-    # @staticmethod
-    # def get_func_path_id(func: Callable[..., Any]) -> Path:
-    #     # module_id = Path(f"{func.__module__}").resolve().parent
-    #     module_id = Path(f"{func.__module__.replace('.', '/')}/").resolve()
-    #     path_id = f"{module_id}/{func.__qualname__}"
-    #     return path_id
 
     @staticmethod
     def get_target_path(func: Callable[..., Any], base_dir: str | Path = "captures") -> Path:

@@ -41,7 +41,8 @@ def do_ops(ops: BasicOps, a, b):
       print(ops.expression(a, b))
       print(ops.concatenation(a, b))
 
-@c.capture(target_path=(Path("capture") / Path(__file__).resolve().parent / "basics" / "do_ops_DI"))
+# @c.capture(target_path=(Path("capture") / Path(__file__).resolve().parent / "basics" / "do_ops_DI"))
+@c.capture()
 def do_ops_DI(ops: BasicOps, a, b):
     i = ops.plus(a, b)
     j = ops.expression(i, b)

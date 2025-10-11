@@ -5,6 +5,22 @@
 # name: test_do_ops_DI_with_protocol_mock
   'start336.125'
 # ---
+# name: test_do_ops_DI_with_protocol_mock_snap
+  list([
+    'start6612.363636363636363',
+    tuple(
+      '6612.363636363636363',
+    ),
+  ])
+# ---
+# name: test_do_ops_DI_with_protocol_mock_snap.1
+  list([
+    'start111133.470588235294116',
+    tuple(
+      '111133.470588235294116',
+    ),
+  ])
+# ---
 # name: test_do_ops_with_protocol_mock
   list([
     tuple(
