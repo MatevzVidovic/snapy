@@ -4,6 +4,7 @@ version = "0.1.0"
 description = ""
 authors = ["Matevž Vidovič <matevz.vidovic@gmail.si>"]
 readme = "README.md"
+package-mode = false
 
 [tool.pytest.ini_options]
 pythonpath = ["src", "."]

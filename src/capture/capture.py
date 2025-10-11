@@ -23,7 +23,7 @@
 
 
 from __future__ import annotations
-import os, time
+import os, time, sys
 from functools import wraps
 from pathlib import Path
 from typing import Any, Callable, ParamSpec, TypeVar
@@ -47,9 +47,42 @@ class CaptureHandler:
     
     @staticmethod
     def get_func_path_id(func: Callable[..., Any]) -> Path:
-        qualname = f"{func.__module__}.{func.__qualname__}"
-        path_id = Path(*qualname.split("."))
+        
+        """
+        If module was imported, func.__module__ is the dotted module name, e.g. "examples.basics".
+        If module was executed as __main__, func.__module__ is "__main__" - the whole path is replaced.
+        We don't like that, because we need a unique ID for the function 
+        so we can store captures in a predictable place.
+        Therefore, if func.module is "__main__", we try to get the real module name from __spec__.name.
+        If __spec__ is not available (e.g. in interactive shells), we fall back to using the file path,
+        """
+        module_name = func.__module__
+        if module_name == "__main__":
+            module = sys.modules[module_name]
+            spec = getattr(module, "__spec__", None)
+            if spec and spec.name:
+                module_name = spec.name
+            else:
+                file = getattr(module, "__file__", None)
+                if file:
+                    module_path = (
+                        Path(file)
+                        .resolve()
+                        .with_suffix("")
+                        .relative_to(Path.cwd())
+                    )
+                    module_name = ".".join(module_path.parts)
+        
+        path_id = Path(*module_name.split(".")) / f"{func.__qualname__}" 
         return path_id
+
+    
+    # @staticmethod
+    # def get_func_path_id(func: Callable[..., Any]) -> Path:
+    #     # module_id = Path(f"{func.__module__}").resolve().parent
+    #     module_id = Path(f"{func.__module__.replace('.', '/')}/").resolve()
+    #     path_id = f"{module_id}/{func.__qualname__}"
+    #     return path_id
 
     @staticmethod
     def get_target_path(func: Callable[..., Any], base_dir: str | Path = "captures") -> Path:
