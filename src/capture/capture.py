@@ -186,21 +186,21 @@ def side_effect_lookup(args: tuple[Any, ...], kwargs: dict[str, Any], target_pat
         raise ValueError("No matching capture found and SIDE_EFFECT_CAPTURE is not set")
     return None, False
 
-def side_effect_target_path(test_fn: Callable[..., Any], side_effect_mock: Callable[..., Any], test_case_name: str) -> Path:
+def side_effect_target_path(test_fn: Callable[..., Any], test_case_name: str, side_effect_mock: Callable[..., Any]) -> Path:
     """
     - purpose: locate side-effect capture folder for test case
     - how: compose captures/side_effect_capture with function + mock + test name
     """
     return Path("captures", "side_effect_capture") / CaptureHandler.get_func_path_id(test_fn) \
-          / side_effect_mock.__qualname__ / test_case_name
+          / test_case_name /side_effect_mock.__qualname__
 
 
-def assert_side_effect_calls(test_fn: Callable[..., Any], side_effect_mock: Callable[..., Any], test_case_name: str, magic_mock: Callable[..., Any]) -> None:
+def assert_side_effect_calls(test_fn: Callable[..., Any], test_case_name: str, side_effect_mock: Callable[..., Any], magic_mock: Callable[..., Any]) -> None:
     """
     - purpose: replay captured args against provided mock
     - how: load stored blobs and assert mock called with each payload
     """
-    target_path = side_effect_target_path(test_fn, side_effect_mock, test_case_name)
+    target_path = side_effect_target_path(test_fn, test_case_name, side_effect_mock)
     blobs = CaptureHandler.get_blob_paths(target_path) or []
 
     for bp in blobs:

@@ -111,12 +111,14 @@ def test_do_ops_DI_with_protocol_mock_snap(mocker: MockerFixture, snapshot):
     table_tests = cch.load_all(b.do_ops_DI)
     if len(table_tests) == 0:
         raise ValueError("No captures found for do_ops - run test_do_ops with SNAPY_CAPTURE_ENABLED=1 first")
+    
     for test_case, captures in table_tests.items():
         ops = mocker.create_autospec(b.BasicOps, instance=True, spec_set=True)
+        test_specifier = (test_do_ops_DI_with_protocol_mock_snap, test_case)
 
         def plus_mock(*args, **kwargs):
             import src.capture.capture as c
-            side_effect_target_path = c.side_effect_target_path(test_do_ops_DI_with_protocol_mock_snap, plus_mock, test_case)
+            side_effect_target_path = c.side_effect_target_path(*test_specifier, plus_mock)
             returned, was_found = c.side_effect_lookup(args, kwargs, side_effect_target_path)
             if was_found:
                 return returned
@@ -131,7 +133,7 @@ def test_do_ops_DI_with_protocol_mock_snap(mocker: MockerFixture, snapshot):
 
         def expression_mock(*args, **kwargs):
             import src.capture.capture as c
-            side_effect_target_path = c.side_effect_target_path(test_do_ops_DI_with_protocol_mock_snap, expression_mock, test_case)
+            side_effect_target_path = c.side_effect_target_path(*test_specifier, expression_mock)
             returned, was_found = c.side_effect_lookup(args, kwargs, side_effect_target_path)
             if was_found:
                 return returned
@@ -145,7 +147,7 @@ def test_do_ops_DI_with_protocol_mock_snap(mocker: MockerFixture, snapshot):
 
         def concatenation_mock(*args, **kwargs):
             import src.capture.capture as c
-            side_effect_target_path = c.side_effect_target_path(test_do_ops_DI_with_protocol_mock_snap, concatenation_mock, test_case)
+            side_effect_target_path = c.side_effect_target_path(*test_specifier, concatenation_mock)
             returned, was_found = c.side_effect_lookup(args, kwargs, side_effect_target_path)
             if was_found:
                 return returned
@@ -167,9 +169,9 @@ def test_do_ops_DI_with_protocol_mock_snap(mocker: MockerFixture, snapshot):
 
         returned = b.do_ops_DI(ops, *captures["args"][1:], **captures["kwargs"])
 
-        c.assert_side_effect_calls(test_do_ops_DI_with_protocol_mock_snap, concatenation_mock, test_case, ops.plus)
-        c.assert_side_effect_calls(test_do_ops_DI_with_protocol_mock_snap, expression_mock, test_case, ops.expression)
-        c.assert_side_effect_calls(test_do_ops_DI_with_protocol_mock_snap, concatenation_mock, test_case, ops.concatenation)
+        c.assert_side_effect_calls(*test_specifier, plus_mock, ops.plus)
+        c.assert_side_effect_calls(*test_specifier, expression_mock, ops.expression)
+        c.assert_side_effect_calls(*test_specifier, concatenation_mock, ops.concatenation)
 
         assert [returned] + [call.args for call in print_spy.call_args_list] == snapshot
         
