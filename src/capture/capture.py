@@ -76,7 +76,7 @@ class CaptureHandler:
             dill.dump(payload, outf)
     
     @staticmethod
-    def get_blob_paths(target_path: str | Path) -> dict[str, Any] | None:
+    def get_blob_paths(target_path: str | Path) -> list[Path]:
         """
         - purpose: list stored special-snapshots
         - how: guard missing dirs, glob for `.pkl`
@@ -86,8 +86,6 @@ class CaptureHandler:
         if not target_path.exists():
             return None
         blobs = list(target_path.glob("*.pkl"))
-        if not blobs:
-            return None
         return blobs
     
     @staticmethod
@@ -100,25 +98,6 @@ class CaptureHandler:
             payload = dill.load(inf)
         return payload
 
-    @staticmethod
-    def load_all(target_path: str | Path | Callable[..., Any]) -> dict[str, Any] | None:
-        """
-        - use: rarely used. It is better to load one blob, use it, then load next.
-        - purpose: batch-read snapshots for path or function
-        - how: resolve func to path, list blobs, load each into dict
-        """
-        if callable(target_path):
-            # - allow passing function directly
-            target_path = CaptureHandler.get_target_path(target_path)
-        blobs = CaptureHandler.get_blob_paths(target_path)
-        if blobs is None:
-            return {}
-        
-        # - collect each payload keyed by filename
-        all_payloads = {}
-        for blob_path in blobs:
-            all_payloads[blob_path.name] = CaptureHandler.get_blob(blob_path)
-        return all_payloads
 
 
 
@@ -180,7 +159,7 @@ def side_effect_lookup(args: tuple[Any, ...], kwargs: dict[str, Any], target_pat
             - if args+kwargs match, return cached result
             - if none matched, signal miss - caller will probably run the actual fn and capture it
     """
-    blob_paths = CaptureHandler.get_blob_paths(target_path) or []
+    blob_paths = CaptureHandler.get_blob_paths(target_path)
     # - look for payload matching provided args/kwargs
     existing_capture = None
     for bp in blob_paths:
@@ -214,7 +193,7 @@ def assert_side_effect_calls(test_fn: Callable[..., Any], test_case_name: str, s
     - how: load stored blobs and assert mock called with each payload
     """
     target_path = side_effect_target_path(test_fn, test_case_name, side_effect_mock)
-    blobs = CaptureHandler.get_blob_paths(target_path) or []
+    blobs = CaptureHandler.get_blob_paths(target_path)
 
     for bp in blobs:
         # - assert recorded call signature matches mock usage

@@ -83,13 +83,11 @@ cch = c.CaptureHandler
 
 def test_real_ops_one_plus(snapshot):
 
-    table = cch.load_all(b.RealOpsOne.plus)
-    print(f"table: {table}")
+    table_tests = cch.get_blob_paths(cch.get_target_path(b.RealOpsOne.plus))
 
-    for _, entry in table.items():
-        # print(b.RealOpsOne().plus(5, 8))
-        result = b.RealOpsOne().plus(*entry["args"][1:], **entry["kwargs"])
-        # print(f"result: {result}")
+    for blob_path in table_tests:
+        captures = cch.get_blob(blob_path)
+        result = b.RealOpsOne().plus(*captures["args"][1:], **captures["kwargs"])
         assert result == snapshot
 
 
@@ -104,11 +102,13 @@ def test_do_ops_DI_with_protocol_mock_snap(mocker: MockerFixture, snapshot):
     print(f"os.getenv('SIDE_EFFECT_TEST_MODE')): {os.getenv('SIDE_EFFECT_TEST_MODE')}")
 
 
-    table_tests = cch.load_all(b.do_ops_DI)
+    table_tests = cch.get_blob_paths(cch.get_target_path(b.do_ops_DI))
     if len(table_tests) == 0:
         raise ValueError("No captures found for do_ops_DI - first run your production with SNAPY_CAPTURE_ENABLED=1")
     
-    for test_case, captures in table_tests.items():
+    for blob_path in table_tests:
+        test_case = blob_path.name
+        captures = cch.get_blob(blob_path)
         ops = mocker.create_autospec(b.BasicOps, instance=True, spec_set=True)
 
 
