@@ -1,4 +1,5 @@
-{
+{   
+    // unittest lib args (not used)
     "python.testing.unittestArgs": [
         "-v",
         "-s",
@@ -6,10 +7,13 @@
         "-p",
         "*test*.py"
     ],
+
+    // pytest lib args - used
     "python.testing.pytestEnabled": true,
     "python.testing.unittestEnabled": false,
     "python.testing.pytestArgs": [
-        "src"
+        "src",
+        "-s"
     ],
     "python-envs.defaultEnvManager": "ms-python.python:conda",
     "python-envs.defaultPackageManager": "ms-python.python:conda",

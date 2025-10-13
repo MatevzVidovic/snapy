@@ -3,15 +3,15 @@
 
 python3 -m examples.basics
 
-poetry run pytest -vv --capture=tee-sys
+poetry run pytest --envfile=.env -vv --capture=tee-sys
 
-poetry run pytest --snapshot-update
+poetry run pytest --envfile=.env --snapshot-update
 
 
 
-poetry run pytest -k _DI -vv --capture=tee-sys
+poetry run pytest --envfile=.env -k _DI -vv --capture=tee-sys
 
-poetry run pytest -k _DI --snapshot-update
+poetry run pytest --envfile=.env -k _DI --snapshot-update
 
 
 # Near plan
