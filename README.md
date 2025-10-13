@@ -16,6 +16,8 @@ poetry run pytest -k _DI --snapshot-update
 
 # Near plan
 
+- remove load_all  - get blob paths + get blob is the idiomatic way.
+
 - (hopefully works) side effect lookup make env var a default param
 - side_effect_lookup and onward has to have comments checked and made
 

@@ -157,6 +157,18 @@ def capture(max_captures: float = 2,
 
 
 
+
+
+
+
+# ---------- Side-effect capture section ----------
+"""
+Side-effect capture simply reuses regular arg capture mechanism - ctrl+F test_do_ops_DI_with_protocol_mock_snap in test_syrupy.py for how that is done and see the explanation.
+
+Below are simply sugar-fns that make that use a lot cleaner.
+"""
+
+
 def side_effect_lookup(args: tuple[Any, ...], kwargs: dict[str, Any], target_path: str | Path, test_mode_env : str = "SIDE_EFFECT_TEST_MODE") -> tuple[Any, bool]:
     """
     - return: (captured_return_val, was_found)
@@ -186,12 +198,13 @@ def side_effect_lookup(args: tuple[Any, ...], kwargs: dict[str, Any], target_pat
         raise ValueError("No matching capture found and SIDE_EFFECT_CAPTURE is not set")
     return None, False
 
-def side_effect_target_path(test_fn: Callable[..., Any], test_case_name: str, side_effect_mock: Callable[..., Any]) -> Path:
+def side_effect_target_path(test_fn: Callable[..., Any], test_case_name: str, 
+                            side_effect_mock: Callable[..., Any], storage_base_path: Path = Path("captures", "side_effect_capture")) -> Path:
     """
     - purpose: locate side-effect capture folder for test case
     - how: compose captures/side_effect_capture with function + mock + test name
     """
-    return Path("captures", "side_effect_capture") / CaptureHandler.get_func_path_id(test_fn) \
+    return storage_base_path / CaptureHandler.get_func_path_id(test_fn) \
           / test_case_name /side_effect_mock.__qualname__
 
 

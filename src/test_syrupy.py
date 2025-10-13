@@ -7,15 +7,16 @@ from unittest.mock import Mock
 from pytest_mock import MockerFixture, MockType
 
 
-def test_greeting():
-    b.main()
+# ---------- Basic snapshot testing ----------
 
-# tests/test_greeting.py
 def test_do_ops(snapshot):
 
     returned = b.do_ops(b.RealOpsOne(), 1, 2)
     assert returned == snapshot
 
+
+
+# ---------- Example of bad Dependency Injection (DI) snapshot testing ----------
 
 def test_do_ops_with_protocol_mock(mocker, snapshot):
     ops = mocker.create_autospec(b.BasicOps, instance=True, spec_set=True)
@@ -37,6 +38,8 @@ def test_do_ops_with_protocol_mock(mocker, snapshot):
     assert [call.args for call in print_spy.call_args_list] == snapshot
 
 
+
+# ---------- Example of good pass-through Dependency Injection (DI) snapshot testing ----------
 
 def test_do_ops_DI_with_protocol_mock(mocker, snapshot):
 
@@ -68,16 +71,15 @@ def test_do_ops_DI_with_protocol_mock(mocker, snapshot):
     assert returned == snapshot
 
 
+
+
+
+
+
 import src.capture.capture as c
 cch = c.CaptureHandler
-# def test_real_ops_one_concatenation(snapshot):
 
-#     table = cch().load_all(b.RealOpsOne.concatenation)
-#     print(f"table: {table}")
-
-#     for _, entry in table.items():
-#         result = b.RealOpsOne().concatenation(*entry["args"], **entry["kwargs"])
-#         assert result == snapshot
+# ---------- Argument capture snap testing example ----------
 
 def test_real_ops_one_plus(snapshot):
 
@@ -93,42 +95,51 @@ def test_real_ops_one_plus(snapshot):
 
 
 
+# ---------- Side-effect capture DI snap testing example ----------
 
 def test_do_ops_DI_with_protocol_mock_snap(mocker: MockerFixture, snapshot):
 
-    """
 
-    - v plus_mock imamo potem fn plus_wrapper ki ima v sebi potem plus().
-    
-    In če je plus_wrapper že imel take argumente (vidimo v capture load) potem samo returnamo to.
+    print(f"os.getenv('SNAPY_CAPTURE_ENABLED')): {os.getenv('SNAPY_CAPTURE_ENABLED')}")
+    print(f"os.getenv('SIDE_EFFECT_TEST_MODE')): {os.getenv('SIDE_EFFECT_TEST_MODE')}")
 
-    Če še ni imel, poženemo plus wrapper (na njim je @capture torej se bo zdaj shranilo).
-
-    - V testu imamo pogledamo za dotenv spremenljivko .
-    Če je ta false ali none, in ne najdemo matching signaturea v loaded captures, damo Exception.
-    """
 
     table_tests = cch.load_all(b.do_ops_DI)
     if len(table_tests) == 0:
-        raise ValueError("No captures found for do_ops - run test_do_ops with SNAPY_CAPTURE_ENABLED=1 first")
+        raise ValueError("No captures found for do_ops_DI - first run your production with SNAPY_CAPTURE_ENABLED=1")
     
     for test_case, captures in table_tests.items():
         ops = mocker.create_autospec(b.BasicOps, instance=True, spec_set=True)
-        test_specifier = (test_do_ops_DI_with_protocol_mock_snap, test_case)
 
+
+
+        # ---------- Idiomatic use of side-effect capture ----------
+
+        test_specifier = (test_do_ops_DI_with_protocol_mock_snap, test_case)
+        # Create fn_mock - this will be the mock method in the DI mock object.
         def plus_mock(*args, **kwargs):
             import src.capture.capture as c
+            # get unique storage path for this (test_fn + test case + fn_mock)
             side_effect_target_path = c.side_effect_target_path(*test_specifier, plus_mock)
+            # if fn_mock has been previously called with this args/kwargs, return stored result
+            # if env var SIDE_EFFECT_TEST_MODE=1 and no match found, error is raised
             returned, was_found = c.side_effect_lookup(args, kwargs, side_effect_target_path)
             if was_found:
                 return returned
             
-            print(f"side_effect_target_path: {side_effect_target_path}" + 5*"\n")
+            # main idea: if no match found, call real fn and store what it returns.
+            # how: To achieve this, we wrap the real call fn, so that we can add a capture decorator to it.
+            # Notice that target_path is for the plus_mock fn, not for plus_wrapper.
+            # This is done so that we can use assert_side_effect_calls() later on (plus_wrapper is an inner fn and can't be accessed outside).
+            # And functionally it makes no diference, since the args/kwargs are the same for plus_mock and plus_wrapper.
             @c.capture(max_captures=float("inf"), target_path=side_effect_target_path)
             def plus_wrapper(*args, **kwargs):
                 import examples.basics as b
                 return b.RealOpsOne().plus(*args, **kwargs)
             return plus_wrapper(*args, **kwargs)
+
+
+
 
 
         def expression_mock(*args, **kwargs):
