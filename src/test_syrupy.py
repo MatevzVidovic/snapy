@@ -110,7 +110,7 @@ def test_do_ops_DI_with_protocol_mock_snap(mocker: MockerFixture, snapshot):
 
     table_tests = cch.load_all(b.do_ops_DI)
     if len(table_tests) == 0:
-        raise ValueError("No captures found for do_ops - run test_do_ops with SNAPY_CAPTURE=1 first")
+        raise ValueError("No captures found for do_ops - run test_do_ops with SNAPY_CAPTURE_ENABLED=1 first")
     for test_case, captures in table_tests.items():
         ops = mocker.create_autospec(b.BasicOps, instance=True, spec_set=True)
 
@@ -121,10 +121,11 @@ def test_do_ops_DI_with_protocol_mock_snap(mocker: MockerFixture, snapshot):
             if was_found:
                 return returned
             
+            print(f"side_effect_target_path: {side_effect_target_path}" + 5*"\n")
             @c.capture(max_captures=float("inf"), target_path=side_effect_target_path)
             def plus_wrapper(*args, **kwargs):
                 import examples.basics as b
-                return b.RealOpsOne.plus(*args, **kwargs)
+                return b.RealOpsOne().plus(*args, **kwargs)
             return plus_wrapper(*args, **kwargs)
 
 
@@ -138,7 +139,7 @@ def test_do_ops_DI_with_protocol_mock_snap(mocker: MockerFixture, snapshot):
             @c.capture(max_captures=float("inf"), target_path=side_effect_target_path)
             def expression_wrapper(*args, **kwargs):
                 import examples.basics as b
-                return b.RealOpsOne.expression(*args, **kwargs)
+                return b.RealOpsOne().expression(*args, **kwargs)
             return expression_wrapper(*args, **kwargs)
         
 
@@ -152,7 +153,7 @@ def test_do_ops_DI_with_protocol_mock_snap(mocker: MockerFixture, snapshot):
             @c.capture(max_captures=float("inf"), target_path=side_effect_target_path)
             def concatenation_wrapper(*args, **kwargs):
                 import examples.basics as b
-                return b.RealOpsOne.concatenation(*args, **kwargs)
+                return b.RealOpsOne().concatenation(*args, **kwargs)
             return concatenation_wrapper(*args, **kwargs)
 
 
@@ -164,7 +165,7 @@ def test_do_ops_DI_with_protocol_mock_snap(mocker: MockerFixture, snapshot):
 
         print_spy = mocker.patch("examples.basics.print")
 
-        returned = b.do_ops_DI(*captures["args"], **captures["kwargs"])
+        returned = b.do_ops_DI(ops, *captures["args"][1:], **captures["kwargs"])
 
         c.assert_side_effect_calls(test_do_ops_DI_with_protocol_mock_snap, concatenation_mock, test_case, ops.plus)
         c.assert_side_effect_calls(test_do_ops_DI_with_protocol_mock_snap, expression_mock, test_case, ops.expression)

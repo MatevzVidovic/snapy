@@ -1,14 +1,22 @@
 
 
 
+python3 -m examples.basics
+
+poetry run pytest -vv --capture=tee-sys
+
+poetry run pytest --snapshot-update
+
+
 
 poetry run pytest -k _DI -vv --capture=tee-sys
 
 poetry run pytest -k _DI --snapshot-update
 
+
 # Near plan
 
-- side effect lookup make env var a default param
+- (hopefully works) side effect lookup make env var a default param
 - side_effect_lookup and onward has to have comments checked and made
 
 - make comments for every fn in capture.py , explaining what is its purpose, and how it does it. Also giving inline comments for what sections of code do. The goal is to have as little text as possible - be very bulletpoint oriented and concise.

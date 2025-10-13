@@ -128,10 +128,11 @@ P = ParamSpec("P")
 R = TypeVar("R")
 
 def capture(max_captures: float = 2,
-            env_var: str = "SNAPY_CAPTURE", target_path: str | Path = None) -> Callable[[Callable[P, R]], Callable[P, R]]:
+            enabled_env: str = "SNAPY_CAPTURE_ENABLED", target_path: str | Path = None) -> Callable[[Callable[P, R]], Callable[P, R]]:
     """
     - purpose: decorator capturing calls when env flag is set
-    - how: wrap func, gate on env var, limit blob count, delegate to handler
+    - how: wrap func; capture only if env var SNAPY_CAPTURE_ENABLED=1; 
+      if blob count limit reached, do not record more; delegate recording to handler
     """
     def decorator(func: Callable[P, R]) -> Callable[P, R]:
         @wraps(func)
@@ -139,7 +140,7 @@ def capture(max_captures: float = 2,
             # - execute wrapped function first
             result = func(*args, **kwargs)
             try:
-                if os.getenv(env_var) == "1":
+                if os.getenv(enabled_env) == "1":
                     # - lazily resolve target folder
                     nonlocal target_path
                     target_path = CaptureHandler.get_target_path(func, "captures") if target_path is None else target_path
@@ -149,21 +150,23 @@ def capture(max_captures: float = 2,
                         # - save current call special-snapshot
                         CaptureHandler.record(args, kwargs, result, target_path)
             except Exception:
-                pass  # swallow capture errors in production paths
+                pass  # swallow capture errors for now
             return result
         return wrapper
     return decorator
 
 
 
-def side_effect_lookup(args: tuple[Any, ...], kwargs: dict[str, Any], target_path: str | Path) -> tuple[Any, bool]:
+def side_effect_lookup(args: tuple[Any, ...], kwargs: dict[str, Any], target_path: str | Path, test_mode_env : str = "SIDE_EFFECT_TEST_MODE") -> tuple[Any, bool]:
     """
-    - use: when making dependency injection mocks, we use @capture to store
-    side-effect return val and fn args.
+    - return: (captured_return_val, was_found)
+    - use: when making dependency injection mocks, we use @capture to store side-effect return val and fn args.
     We then use this function to load them up:
     this way we do not have to manually create mock return vals and fn args.
     - purpose: reuse stored outputs by arg match
-    - how: scan blobs, return cached result if match, signal miss
+    - how:  - scan existing blobs one by one, 
+            - if args+kwargs match, return cached result
+            - if none matched, signal miss - caller will probably run the actual fn and capture it
     """
     blob_paths = CaptureHandler.get_blob_paths(target_path) or []
     # - look for payload matching provided args/kwargs
@@ -175,10 +178,11 @@ def side_effect_lookup(args: tuple[Any, ...], kwargs: dict[str, Any], target_pat
             break
     
     if existing_capture is not None:
-        # - feed back cached result, mark as replay
+        # - feed back cached result, was_found=True
         return existing_capture["result"], True
     
-    if not os.getenv("SIDE_EFFECT_CAPTURE") == "1":
+    if os.getenv(test_mode_env) == "1":
+        # - in test mode, missing capture is an error
         raise ValueError("No matching capture found and SIDE_EFFECT_CAPTURE is not set")
     return None, False
 
