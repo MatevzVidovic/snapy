@@ -107,7 +107,7 @@ P = ParamSpec("P")
 R = TypeVar("R")
 
 def capture(max_captures: float = 2,
-            enabled_env: str = "SNAPY_CAPTURE_ENABLED", target_path: str | Path = None) -> Callable[[Callable[P, R]], Callable[P, R]]:
+            target_path: str | Path = None, in_capture_mode: bool = True) -> Callable[[Callable[P, R]], Callable[P, R]]:
     """
     - purpose: decorator capturing calls when env flag is set
     - how: wrap func; capture only if env var SNAPY_CAPTURE_ENABLED=1; 
@@ -119,7 +119,7 @@ def capture(max_captures: float = 2,
             # - execute wrapped function first
             result = func(*args, **kwargs)
             try:
-                if os.getenv(enabled_env) == "1":
+                if in_capture_mode:
                     # - lazily resolve target folder
                     nonlocal target_path
                     target_path = CaptureHandler.get_target_path(func, "captures") if target_path is None else target_path
@@ -148,7 +148,7 @@ Below are simply sugar-fns that make that use a lot cleaner.
 """
 
 
-def side_effect_lookup(args: tuple[Any, ...], kwargs: dict[str, Any], target_path: str | Path, test_mode_env : str = "SIDE_EFFECT_TEST_MODE") -> tuple[Any, bool]:
+def side_effect_lookup(args: tuple[Any, ...], kwargs: dict[str, Any], target_path: str | Path, in_test_mode : bool = True) -> tuple[Any, bool]:
     """
     - return: (captured_return_val, was_found)
     - use: when making dependency injection mocks, we use @capture to store side-effect return val and fn args.
@@ -171,8 +171,8 @@ def side_effect_lookup(args: tuple[Any, ...], kwargs: dict[str, Any], target_pat
     if existing_capture is not None:
         # - feed back cached result, was_found=True
         return existing_capture["result"], True
-    
-    if os.getenv(test_mode_env) == "1":
+
+    if in_test_mode:
         # - in test mode, missing capture is an error
         raise ValueError("No matching capture found and SIDE_EFFECT_CAPTURE is not set")
     return None, False

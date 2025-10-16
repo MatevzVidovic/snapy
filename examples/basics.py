@@ -1,6 +1,7 @@
 
 
 
+import os
 from pathlib import Path
 import src.capture.capture as c
 cch = c.CaptureHandler
@@ -9,15 +10,16 @@ from examples.BasicOps_interface import BasicOps
 
 import examples.basics_module as bm
 
-
+def CE():
+    return os.getenv("SNAPY_CAPTURE_ENABLED") == "1"
     
 class RealOpsOne:
 
-    @c.capture()
+    @c.capture(in_capture_mode=CE())
     def plus(self, a, b, c=1, d=2):
         return a + b + c + d
 
-    @c.capture()
+    @c.capture(in_capture_mode=CE())
     def concatenation(self, a, b):
         return str(a) + str(b)
 
@@ -41,8 +43,8 @@ def do_ops(ops: BasicOps, a, b):
       print(ops.expression(a, b))
       print(ops.concatenation(a, b))
 
-# @c.capture(target_path=(Path("capture") / Path(__file__).resolve().parent / "basics" / "do_ops_DI"))
-@c.capture()
+# @c.capture(target_path=(Path("capture") / Path(__file__).resolve().parent / "basics" / "do_ops_DI"), in_capture_mode=CE())
+@c.capture(in_capture_mode=CE())
 def do_ops_DI(ops: BasicOps, a, b):
     i = ops.plus(a, b)
     j = ops.expression(i, b)

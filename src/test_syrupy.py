@@ -3,8 +3,13 @@ import os
 from pathlib import Path
 import examples.basics as b
 
-from unittest.mock import Mock
 from pytest_mock import MockerFixture, MockType
+
+def CE():
+    return os.getenv("SNAPY_CAPTURE_ENABLED") == "1"
+
+def TM():
+    return os.getenv("SIDE_EFFECT_TEST_MODE") == "1"
 
 
 # ---------- Basic snapshot testing ----------
@@ -123,7 +128,7 @@ def test_do_ops_DI_with_protocol_mock_snap(mocker: MockerFixture, snapshot):
             side_effect_target_path = c.side_effect_target_path(*test_specifier, plus_mock)
             # if fn_mock has been previously called with this args/kwargs, return stored result
             # if env var SIDE_EFFECT_TEST_MODE=1 and no match found, error is raised
-            returned, was_found = c.side_effect_lookup(args, kwargs, side_effect_target_path)
+            returned, was_found = c.side_effect_lookup(args, kwargs, side_effect_target_path, in_test_mode=os.getenv("SIDE_EFFECT_TEST_MODE") == "1")
             if was_found:
                 return returned
             
@@ -132,7 +137,7 @@ def test_do_ops_DI_with_protocol_mock_snap(mocker: MockerFixture, snapshot):
             # Notice that target_path is for the plus_mock fn, not for plus_wrapper.
             # This is done so that we can use assert_side_effect_calls() later on (plus_wrapper is an inner fn and can't be accessed outside).
             # And functionally it makes no diference, since the args/kwargs are the same for plus_mock and plus_wrapper.
-            @c.capture(max_captures=float("inf"), target_path=side_effect_target_path)
+            @c.capture(max_captures=float("inf"), target_path=side_effect_target_path, in_capture_mode=os.getenv("SNAPY_CAPTURE_ENABLED") == "1")
             def plus_wrapper(*args, **kwargs):
                 import examples.basics as b
                 return b.RealOpsOne().plus(*args, **kwargs)
@@ -145,11 +150,11 @@ def test_do_ops_DI_with_protocol_mock_snap(mocker: MockerFixture, snapshot):
         def expression_mock(*args, **kwargs):
             import src.capture.capture as c
             side_effect_target_path = c.side_effect_target_path(*test_specifier, expression_mock)
-            returned, was_found = c.side_effect_lookup(args, kwargs, side_effect_target_path)
+            returned, was_found = c.side_effect_lookup(args, kwargs, side_effect_target_path, in_test_mode=TM())
             if was_found:
                 return returned
-            
-            @c.capture(max_captures=float("inf"), target_path=side_effect_target_path)
+
+            @c.capture(max_captures=float("inf"), target_path=side_effect_target_path, in_capture_mode=CE())
             def expression_wrapper(*args, **kwargs):
                 import examples.basics as b
                 return b.RealOpsOne().expression(*args, **kwargs)
@@ -159,11 +164,11 @@ def test_do_ops_DI_with_protocol_mock_snap(mocker: MockerFixture, snapshot):
         def concatenation_mock(*args, **kwargs):
             import src.capture.capture as c
             side_effect_target_path = c.side_effect_target_path(*test_specifier, concatenation_mock)
-            returned, was_found = c.side_effect_lookup(args, kwargs, side_effect_target_path)
+            returned, was_found = c.side_effect_lookup(args, kwargs, side_effect_target_path, in_test_mode=TM())
             if was_found:
                 return returned
-            
-            @c.capture(max_captures=float("inf"), target_path=side_effect_target_path)
+
+            @c.capture(max_captures=float("inf"), target_path=side_effect_target_path, in_capture_mode=CE())
             def concatenation_wrapper(*args, **kwargs):
                 import examples.basics as b
                 return b.RealOpsOne().concatenation(*args, **kwargs)
