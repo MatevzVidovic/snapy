@@ -36,20 +36,21 @@ dev = [
 [tool.ruff]
 # Linting rules and formatting
 line-length = 100
-target-version = "py312"
+target-version = "py311"
 fix = true
 lint.extend-select = ["I", "UP", "B", "C90"]  # import sorting, pyupgrade, bugbear, complexity
 exclude = ["build", "dist", ".venv"]
 
 [tool.mypy]
-python_version = "3.12"
-strict = true
-# Flip these later to become stricter:
+python_version = "3.11"
 ignore_missing_imports = true       # don’t error on untyped libs
-disallow_untyped_defs = false       # allow untyped function defs
-disallow_incomplete_defs = false    # allow partially typed defs
-warn_return_any = false             # don’t complain about returning Any
-warn_unused_ignores = false         # don’t warn about unused # type: ignore
-check_untyped_defs = false          # Skips type checking for untyped functions
-no_implicit_optional = false        # Allows implicit `Optional[...]` for args with default `None`
-warn_unreachable = false           # Disables unreachable code warnings
+check_untyped_defs = true           # if fn def has no type defs, whole body wouldn't be type checked - now it is
+# strict = true
+# # Flip these later to become stricter:
+# disallow_untyped_defs = false       # allow untyped function defs
+# disallow_incomplete_defs = false    # allow partially typed defs
+# warn_return_any = false             # don’t complain about returning Any
+# warn_unused_ignores = false         # don’t warn about unused # type: ignore
+# check_untyped_defs = false          # Skips type checking for untyped functions
+# no_implicit_optional = false        # Allows implicit `Optional[...]` for args with default `None`
+# warn_unreachable = false           # Disables unreachable code warnings

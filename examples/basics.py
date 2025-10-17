@@ -77,6 +77,6 @@ if __name__ == "__main__":
 
     dotenv.load_dotenv()
     print("------------------------------")
-    print(os.getenv("SNAPY_CAPTURE"))
+    print(os.getenv("SNAPY_CAPTURE_ENABLED"))
 
     main()

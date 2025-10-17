@@ -1,3 +1,18 @@
+
+
+test:
+	poetry run pytest --envfile=.env -vv --capture=tee-sys
+
+snap-update:
+	poetry run pytest --envfile=.env --snapshot-update
+
+whole_test:
+	python3 -m examples.basics
+	poetry run pytest --envfile=.env -vv --capture=tee-sys
+	poetry run pytest --envfile=.env --snapshot-update
+	poetry run pytest --envfile=.env -vv --capture=tee-sys
+
+
 .PHONY: lint format typecheck check-all
 
 format:
@@ -6,9 +21,9 @@ format:
 lint:
 	poetry run ruff check . --fix
 
-ruff: format lint
+ruff: lint format
 
 typecheck:
 	poetry run mypy .
 
-check-all: format lint typecheck
+check-all: lint format typecheck

@@ -16,8 +16,6 @@ poetry run pytest --envfile=.env -k _DI --snapshot-update
 
 # Near plan
 
-- add pylint and mypy and make them work well
-- make a makefile with the pytest commands and such
 - make snapy a real module, with __init__.py. Make examples be tests for it, where also the behaviour is showcased.
 - rename this README.md into WORKING.md
 - make use docs in  README.md   (the 3 features, how to use each feature - explanation of how it works is to ctrl+F some fn that has great comments that explain it all)

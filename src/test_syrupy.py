@@ -49,7 +49,7 @@ def test_do_ops_with_protocol_mock(mocker: MockerFixture, snapshot):
 
 
 def test_do_ops_DI_with_protocol_mock(mocker: MockerFixture, snapshot):
-    real_ops: MagicMock = b.RealOpsOne()
+    real_ops = b.RealOpsOne()
 
     ops: MagicMock = mocker.create_autospec(b.BasicOps, instance=True, spec_set=True)
     ops.plus.return_value = 3
@@ -85,12 +85,12 @@ cch = c.CaptureHandler
 # ---------- Argument capture snap testing example ----------
 
 
-def test_real_ops_one_plus(snapshot):
+def test_real_ops_one_plus(snapshot) -> None:
     table_tests = cch.get_blob_paths(cch.get_target_path(b.RealOpsOne.plus))
 
     for blob_path in table_tests:
         captures = cch.get_blob(blob_path)
-        result = b.RealOpsOne().plus(*captures["args"][1:], **captures["kwargs"])
+        result = b.RealOpsOne().plus(*captures.args[1:], **captures.kwargs)
         assert result == snapshot
 
 
@@ -109,7 +109,8 @@ def test_do_ops_DI_with_protocol_mock_snap(mocker: MockerFixture, snapshot):  # 
 
     for blob_path in table_tests:
         test_case = blob_path.name
-        captures = cch.get_blob(blob_path)
+        print(f"blob_path: {blob_path}, test_case: {test_case}")
+        captures: c.CapturePayload = cch.get_blob(blob_path)
         ops: MagicMock = mocker.create_autospec(b.BasicOps, instance=True, spec_set=True)
 
         # ---------- Idiomatic use of side-effect capture ----------
@@ -196,7 +197,7 @@ def test_do_ops_DI_with_protocol_mock_snap(mocker: MockerFixture, snapshot):  # 
 
         print_spy = mocker.patch("examples.basics.print")
 
-        returned = b.do_ops_DI(ops, *captures["args"][1:], **captures["kwargs"])
+        returned = b.do_ops_DI(ops, *captures.args[1:], **captures.kwargs)
 
         c.assert_side_effect_calls(*test_specifier, plus_mock, ops.plus)
         c.assert_side_effect_calls(*test_specifier, expression_mock, ops.expression)

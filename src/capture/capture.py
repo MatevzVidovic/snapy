@@ -3,9 +3,11 @@ from __future__ import annotations
 import sys
 import time
 from collections.abc import Callable
+from dataclasses import dataclass
 from functools import wraps
 from pathlib import Path
 from typing import Any, ParamSpec, TypeVar
+from unittest.mock import MagicMock
 
 import dill
 
@@ -14,6 +16,13 @@ import dill
 - bucket by module + qualname, name files by ms timestamp
 - persist args/kwargs/result via dill; ignore capture errors in prod
 """
+
+
+@dataclass
+class CapturePayload:
+    args: tuple[Any, ...]
+    kwargs: dict[str, Any]
+    result: Any
 
 
 class CaptureHandler:
@@ -63,10 +72,11 @@ class CaptureHandler:
         """
 
         # - ensure capture folder exists
+        target_path = Path(target_path)
         target_path.mkdir(parents=True, exist_ok=True)
         # - build payload blob
         ts = int(time.time() * 1000)
-        payload = {"args": args, "kwargs": kwargs, "result": result}
+        payload = CapturePayload(args=args, kwargs=kwargs, result=result)
         blob_path = target_path / f"{ts}.pkl"
         with blob_path.open("wb") as outf:
             dill.dump(payload, outf)
@@ -80,18 +90,20 @@ class CaptureHandler:
 
         target_path = Path(target_path)
         if not target_path.exists():
-            return None
+            return []
         blobs = list(target_path.glob("*.pkl"))
         return blobs
 
     @staticmethod
-    def get_blob(blob_path: str | Path) -> dict[str, Any] | None:
+    def get_blob(blob_path: str | Path) -> CapturePayload:
         """
         - purpose: load one snapshot
         - how: open binary path, dill.load
         """
+        blob_path = Path(blob_path)
         with blob_path.open("rb") as inf:
             payload = dill.load(inf)
+        assert isinstance(payload, CapturePayload)
         return payload
 
 
@@ -100,7 +112,7 @@ R = TypeVar("R")
 
 
 def capture(
-    max_captures: float = 2, target_path: str | Path = None, in_capture_mode: bool = True
+    max_captures: float = 2, target_path: str | Path | None = None, in_capture_mode: bool = True
 ) -> Callable[[Callable[P, R]], Callable[P, R]]:
     """
     - purpose: decorator capturing calls when env flag is set
@@ -120,7 +132,7 @@ def capture(
                     target_path = (
                         CaptureHandler.get_target_path(func, "captures")
                         if target_path is None
-                        else target_path
+                        else Path(target_path)
                     )
                     # - enforce capture limit
                     num_of_files = (
@@ -166,14 +178,14 @@ def side_effect_lookup(
     # - look for payload matching provided args/kwargs
     existing_capture = None
     for bp in blob_paths:
-        entry = CaptureHandler.get_blob(bp)
-        if entry["args"] == args and entry["kwargs"] == kwargs:
+        entry: CapturePayload = CaptureHandler.get_blob(bp)
+        if entry.args == args and entry.kwargs == kwargs:
             existing_capture = entry
             break
 
     if existing_capture is not None:
         # - feed back cached result, was_found=True
-        return existing_capture["result"], True
+        return existing_capture.result, True
 
     if in_test_mode:
         # - in test mode, missing capture is an error
@@ -203,7 +215,7 @@ def assert_side_effect_calls(
     test_fn: Callable[..., Any],
     test_case_name: str,
     side_effect_mock: Callable[..., Any],
-    magic_mock: Callable[..., Any],
+    magic_mock: MagicMock,
 ) -> None:
     """
     - purpose: replay captured args against provided mock
@@ -214,5 +226,5 @@ def assert_side_effect_calls(
 
     for bp in blobs:
         # - assert recorded call signature matches mock usage
-        entry = CaptureHandler.get_blob(bp)
-        magic_mock.assert_called_with(*entry["args"], **entry["kwargs"])
+        entry: CapturePayload = CaptureHandler.get_blob(bp)
+        magic_mock.assert_called_with(*entry.args, **entry.kwargs)
