@@ -1,12 +1,14 @@
 .PHONY: lint format typecheck check-all
 
+format:
+	poetry run ruff format .
+
 lint:
 	poetry run ruff check . --fix
 
-format:
-	poetry run ruff format .
+ruff: format lint
 
 typecheck:
 	poetry run mypy .
 
-check-all: lint format typecheck
+check-all: format lint typecheck

@@ -98,4 +98,4 @@ dependencies:
       - virtualenv==20.34.0
       - zipp==3.23.0
       - zstandard==0.25.0
-prefix: /home/matevz/miniconda3/envs/snapy
+prefix: /home/user/miniconda/envs/snapy

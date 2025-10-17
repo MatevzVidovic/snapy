@@ -1,15 +1,10 @@
-
-
-
 import src.capture.capture as c
-cch = c.CaptureHandler
-
 from examples.BasicOps_interface import BasicOps
 
+cch = c.CaptureHandler
 
 
 class RealOpsThree:
-
     @c.capture()
     def plus(self, a, b, c=1, d=2):
         return a + b + c + d
